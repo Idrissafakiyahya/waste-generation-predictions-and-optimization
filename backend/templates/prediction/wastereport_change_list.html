@@ -1,0 +1,94 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+  #result_list th {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-bottom: 2px solid #d1d5db !important;
+    font-weight: 700 !important;
+  }
+
+  #result_list td {
+    background: #ffffff;
+    color: #111827;
+  }
+
+  #result_list tr:nth-child(even) td {
+    background: #f9fafb;
+  }
+
+  .searchbar input[name=q] {
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid #9ca3af;
+  }
+
+  .searchbar .search-submit {
+    background: #16a34a;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+  }
+
+  .searchbar .search-submit:hover {
+    background: #15803d;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div style="margin-bottom: 1.5rem; display: grid; gap: 1rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+      <div style="background: #ffffff; border: 1px solid #d1d5db; border-radius: 0.75rem; padding: 1rem;">
+        <h3 style="margin: 0 0 0.5rem; font-size: 1rem; color: #111827;">Full reports</h3>
+        <p style="margin: 0; font-size: 1.75rem; font-weight: 700; color: #16a34a;">{{ summary_full|default:0 }}</p>
+      </div>
+      <div style="background: #ffffff; border: 1px solid #d1d5db; border-radius: 0.75rem; padding: 1rem;">
+        <h3 style="margin: 0 0 0.5rem; font-size: 1rem; color: #111827;">High reports</h3>
+        <p style="margin: 0; font-size: 1.75rem; font-weight: 700; color: #f59e0b;">{{ summary_high|default:0 }}</p>
+      </div>
+      <div style="background: #ecfdf5; border: 1px solid #bbf7d0; border-radius: 0.75rem; padding: 1rem;">
+        <h3 style="margin: 0 0 0.5rem; font-size: 1rem; color: #065f46;">Waste level filter</h3>
+        <p style="margin: 0; color: #1f2937;">Use the admin waste level filter on the right to select Full, High, Medium, Low or Unknown.</p>
+      </div>
+    </div>
+
+    {% if alert_reports %}
+      <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 0.75rem; padding: 1rem;">
+        <h3 style="margin-top: 0; color: #15803d;">Repeated Full/High Alerts</h3>
+        <p style="margin: 0 0 1rem; color: #15803d;">Bins reported as Full or High more than twice on the same day.</p>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; min-width: 760px;">
+            <thead>
+              <tr>
+                <th style="text-align: left; padding: 0.75rem; border-bottom: 1px solid #e5e7eb; background: #16a34a; color: #ffffff;">Date</th>
+                <th style="text-align: left; padding: 0.75rem; border-bottom: 1px solid #e5e7eb; background: #16a34a; color: #ffffff;">Shehia</th>
+                <th style="text-align: left; padding: 0.75rem; border-bottom: 1px solid #e5e7eb; background: #16a34a; color: #ffffff;">Bin</th>
+                <th style="text-align: left; padding: 0.75rem; border-bottom: 1px solid #e5e7eb; background: #16a34a; color: #ffffff;">Reports</th>
+                <th style="text-align: left; padding: 0.75rem; border-bottom: 1px solid #e5e7eb; background: #16a34a; color: #ffffff;">Comments</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for alert in alert_reports %}
+                <tr style="background: #ffffff;">
+                  <td style="padding: 0.75rem; border-bottom: 1px solid #e5e7eb;">{{ alert.date }}</td>
+                  <td style="padding: 0.75rem; border-bottom: 1px solid #e5e7eb;">{{ alert.shehia }}</td>
+                  <td style="padding: 0.75rem; border-bottom: 1px solid #e5e7eb;">{{ alert.bin }}</td>
+                  <td style="padding: 0.75rem; border-bottom: 1px solid #e5e7eb;">{{ alert.count }}</td>
+                  <td style="padding: 0.75rem; border-bottom: 1px solid #e5e7eb;">{{ alert.comments|join:", " }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  {{ block.super }}
+{% endblock %}

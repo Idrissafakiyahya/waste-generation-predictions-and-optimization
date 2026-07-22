@@ -1,0 +1,181 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Waste System Admin Panel{% endblock %}
+
+{% block extrahead %}
+<link rel="stylesheet" href="{% static 'css/custom_admin.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root {
+        --primary-color: #2E7D32;
+        --secondary-color: #66BB6A;
+        --accent-color: #43A047;
+        --dark-accent: #1B5E20;
+        --text-color: #1B1B1B;
+        --white: #FFFFFF;
+        --light-bg: #F5F7F5;
+    }
+
+    #header {
+        background: linear-gradient(90deg, #1B5E20 0%, #2E7D32 50%, #43A047 100%);
+        border-bottom: 4px solid #66BB6A;
+        padding: 15px 0;
+    }
+
+    #header h1 {
+        color: #FFFFFF;
+        font-size: 1.8em;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    #header h1 img {
+        height: 45px;
+        width: auto;
+    }
+
+    #header h1 a {
+        color: #FFFFFF;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    #header h1 a:hover {
+        color: #B3E5FC;
+    }
+
+    #branding {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .logo-container {
+        flex-shrink: 0;
+    }
+
+    .logo-container img {
+        height: 50px;
+        width: auto;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+
+    .site-title-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .site-title {
+        font-size: 1.6em;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+
+    .site-subtitle {
+        font-size: 0.85em;
+        color: #C8E6C9;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    #user-tools {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 10px 20px;
+        color: #FFFFFF;
+    }
+
+    #user-tools a {
+        color: #B3E5FC;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    #user-tools a:hover {
+        color: #FFFFFF;
+    }
+
+    #content-main {
+        background-color: #F5F7F5;
+    }
+
+    .dashboard {
+        background: linear-gradient(135deg, #F5F7F5 0%, #E8F5E9 100%);
+    }
+
+    .module {
+        background-color: #FFFFFF;
+        border: 1px solid #C8E6C9;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .module:hover {
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
+        border-color: #66BB6A;
+    }
+
+    .module h2 {
+        background: linear-gradient(90deg, #2E7D32 0%, #43A047 100%);
+        color: #FFFFFF;
+        border-radius: 8px 8px 0 0;
+        padding: 15px;
+        margin: 0;
+        font-size: 1.2em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .module th {
+        background-color: #E8F5E9;
+        color: #1B5E20;
+        border-bottom: 2px solid #66BB6A;
+        font-weight: 600;
+        padding: 15px;
+    }
+
+    .module tr:hover {
+        background-color: #F1F8F6;
+    }
+
+    .dashboard-section-title {
+        color: #1B5E20;
+        font-size: 1.3em;
+        font-weight: 700;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 3px solid #66BB6A;
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<div id="branding">
+    <div class="logo-container">
+        <img src="{% static 'images/logo.svg' %}" alt="Waste System Logo" title="Waste System">
+    </div>
+    <div class="site-title-container">
+        <div class="site-title">
+            <i class="fas fa-trash-alt"></i> Waste System
+        </div>
+        <div class="site-subtitle">Admin Management Panel</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block welcome %}
+<div style="background: linear-gradient(90deg, rgba(46,125,50,0.1) 0%, rgba(102,187,106,0.1) 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2E7D32;">
+    <h2 style="color: #1B5E20; margin-top: 0;">Welcome to Waste Management System</h2>
+    <p style="color: #43A047; margin: 0;">Manage waste collection, predictions, and system analytics</p>
+</div>
+{% endblock %}

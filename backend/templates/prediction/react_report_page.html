@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Waste Report</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7f5;
+            color: #163020;
+        }
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #f4f7f5 0%, #e8f5e9 100%);
+            min-height: 100vh;
+        }
+        .page {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+        .card {
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(22, 48, 32, 0.12);
+            padding: 28px;
+        }
+        h1 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #2e7d32;
+        }
+        p {
+            line-height: 1.6;
+            color: #4b5f56;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #214d34;
+        }
+        select, input, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #c8d8cd;
+            border-radius: 10px;
+            font-size: 15px;
+            box-sizing: border-box;
+            background: #fbfdfb;
+        }
+        textarea {
+            min-height: 102px;
+            resize: vertical;
+        }
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            background: #2e7d32;
+            color: white;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #256b2a;
+        }
+        .status {
+            margin-top: 18px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .status.success {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+        .status.error {
+            background: #ffebee;
+            color: #b71c1c;
+        }
+        .muted {
+            color: #6f7f78;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+        @media (max-width: 700px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="report-root"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useEffect, useMemo, useState } = React;
+
+        function ReportPage() {
+            const [shehias, setShehias] = useState([]);
+            const [bins, setBins] = useState([]);
+            const [selectedShehia, setSelectedShehia] = useState('');
+            const [selectedBin, setSelectedBin] = useState('');
+            const [timestamp, setTimestamp] = useState(new Date().toISOString());
+            const [comment, setComment] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [status, setStatus] = useState(null);
+
+            useEffect(() => {
+                fetch('/api/shehias/')
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.success) {
+                            setShehias(data.data || []);
+                        }
+                    })
+                    .catch(() => setStatus({ type: 'error', message: 'Unable to load shehias.' }));
+            }, []);
+
+            useEffect(() => {
+                if (!selectedShehia) {
+                    setBins([]);
+                    setSelectedBin('');
+                    return;
+                }
+
+                fetch(`/api/bins/?shehia_id=${selectedShehia}`)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.success) {
+                            setBins(data.data || []);
+                            setSelectedBin('');
+                        }
+                    })
+                    .catch(() => setStatus({ type: 'error', message: 'Unable to load bins.' }));
+            }, [selectedShehia]);
+
+            const shehiaName = useMemo(() => {
+                return shehias.find((item) => String(item.id) === String(selectedShehia))?.name || '';
+            }, [shehias, selectedShehia]);
+
+            const handleSubmit = async (event) => {
+                event.preventDefault();
+                setLoading(true);
+                setStatus(null);
+
+                try {
+                    const response = await fetch('/api/reports/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            shehia_id: selectedShehia,
+                            bin_id: selectedBin,
+                            timestamp,
+                            comment,
+                        }),
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        setStatus({ type: 'success', message: 'Report submitted successfully.' });
+                        setSelectedShehia('');
+                        setSelectedBin('');
+                        setComment('');
+                        setTimestamp(new Date().toISOString());
+                    } else {
+                        setStatus({ type: 'error', message: data.error || 'Unable to submit report.' });
+                    }
+                } catch (error) {
+                    setStatus({ type: 'error', message: 'Request failed. Please try again.' });
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="page">
+                    <div className="card">
+                        <h1>Waste Report</h1>
+                        <p>Submit a community waste report using the React-powered form.</p>
+
+                        <form onSubmit={handleSubmit}>
+                            <div className="grid">
+                                <div>
+                                    <label htmlFor="shehia">Shehia</label>
+                                    <select id="shehia" value={selectedShehia} onChange={(e) => setSelectedShehia(e.target.value)} required>
+                                        <option value="">Select a shehia</option>
+                                        {shehias.map((item) => (
+                                            <option key={item.id} value={item.id}>{item.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="bin">Bin</label>
+                                    <select id="bin" value={selectedBin} onChange={(e) => setSelectedBin(e.target.value)} required disabled={!selectedShehia}>
+                                        <option value="">Select a bin</option>
+                                        {bins.map((item) => (
+                                            <option key={item.id} value={item.id}>{item.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="grid" style={{ marginTop: 16 }}>
+                                <div>
+                                    <label htmlFor="timestamp">Timestamp</label>
+                                    <input id="timestamp" type="datetime-local" value={timestamp.slice(0, 16)} onChange={(e) => setTimestamp(new Date(e.target.value).toISOString())} required />
+                                </div>
+                                <div>
+                                    <label htmlFor="location">Location preview</label>
+                                    <input id="location" type="text" value={shehiaName} readOnly />
+                                </div>
+                            </div>
+
+                            <div style={{ marginTop: 16 }}>
+                                <label htmlFor="comment">Comment</label>
+                                <textarea id="comment" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Describe the issue or waste condition." />
+                            </div>
+
+                            <button type="submit" disabled={loading}>{loading ? 'Submitting...' : 'Submit Report'}</button>
+                        </form>
+
+                        {status && (
+                            <div className={`status ${status.type === 'success' ? 'success' : 'error'}`}>
+                                {status.message}
+                            </div>
+                        )}
+
+                        <p className="muted">This page uses React and talks to the Django API endpoints.</p>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('report-root')).render(<ReportPage />);
+    </script>
+</body>
+</html>

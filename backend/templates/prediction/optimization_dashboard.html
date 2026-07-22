@@ -1,0 +1,160 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+  <div class="module">
+    <h1>Optimization Schedule</h1>
+    <p>Real-time collection schedule based on predicted bin fullness from community reports.</p>
+    {% if latest_saved_batch %}
+      <div style="margin-top:1rem;padding:1rem 1.25rem;border-left:4px solid #16a34a;background:#ecfdf4;color:#064e3b;border-radius:0.75rem;">
+        <strong>Using latest saved prediction batch:</strong> {{ latest_saved_batch.name }} — {{ latest_saved_batch.created_at|date:'M d, Y H:i' }}
+      </div>
+      <br />
+    {% endif %}
+
+    {% if error %}
+      <div class="module error">
+        <h2>Error</h2>
+        <p>{{ error }}</p>
+      </div>
+    {% else %}
+      <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:1.5rem;">
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;justify-content:flex-start;">
+          {% for button in day_buttons %}
+            <a href="{{ button.url }}" class="button" style="padding:0.6rem 0.9rem;border-radius:8px;text-decoration:none;{% if button.is_active %}background:#2563eb;color:white;{% else %}background:#f3f4f6;color:#111827;{% endif %}">
+              {{ button.label }}
+            </a>
+          {% endfor %}
+          <div style="margin-left:1rem;font-weight:700;color:#065f46;">{% if selected_all %}All Days{% else %}{{ selected_date|date:'D, M d, Y' }}{% endif %}</div>
+        </div>
+
+        {% if timetable and not show_timetable %}
+          <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+            <a href="{{ view_timetable_url }}" class="button" style="background:#10b981; color:white; padding:0.6rem 0.9rem; border-radius:8px; text-decoration:none;">View Timetable</a>
+          </div>
+        {% endif %}
+
+        {% if show_timetable %}
+          <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+              <span style="font-weight:600; color:#0f4c75;">Download:</span>
+              <a href="{{ download_url_csv }}" class="button" style="background:#16a34a; color:white; padding:0.6rem 0.9rem; border-radius:8px; text-decoration:none;">CSV</a>
+              <a href="{{ download_url_pdf }}" class="button" style="background:#2563eb; color:white; padding:0.6rem 0.9rem; border-radius:8px; text-decoration:none;">PDF</a>
+            </div>
+          </div>
+          <div class="module" style="margin-top:1rem; padding:1rem; background:#f8fafc; border:1px solid #d1e7f0; border-radius:0.9rem;">
+            <h2 style="margin-top:0; color:#0f4c75;">High/Full Collection Timetable</h2>
+            <p style="margin:0 0 1rem; color:#334155;">Only bins predicted High or Full for the selected day are listed here with priority High.</p>
+            <table class="admin-table" style="width:100%; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Shehia</th>
+                  <th>Bin</th>
+                  <th>Priority</th>
+                  <th>Prediction</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in timetable %}
+                  <tr>
+                    <td>{{ row.time }}</td>
+                    <td>{{ row.shehia }}</td>
+                    <td>{{ row.bin }}</td>
+                    <td>{{ row.priority }}</td>
+                    <td>{{ row.prediction|title }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
+
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+          <div style="flex: 1; min-width: 180px; padding: 1rem 1.25rem; border-radius: 12px; background: #f0fdf4; border: 1px solid #d1fae5;">
+            <h2 style="margin: 0 0 0.5rem; color: #047857;">High Priority</h2>
+            <p style="font-size: 2rem; margin: 0;">{{ summary.high|default:0 }}</p>
+          </div>
+          <div style="flex: 1; min-width: 180px; padding: 1rem 1.25rem; border-radius: 12px; background: #fffbeb; border: 1px solid #fef3c7;">
+            <h2 style="margin: 0 0 0.5rem; color: #b45309;">Medium Priority</h2>
+            <p style="font-size: 2rem; margin: 0;">{{ summary.medium|default:0 }}</p>
+          </div>
+          <div style="flex: 1; min-width: 180px; padding: 1rem 1.25rem; border-radius: 12px; background: #ecfdf5; border: 1px solid #d1fae5;">
+            <h2 style="margin: 0 0 0.5rem; color: #15803d;">Low Priority</h2>
+            <p style="font-size: 2rem; margin: 0;">{{ summary.low|default:0 }}</p>
+          </div>
+        </div>
+      </div>
+
+      <form method="get" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-end;">
+        <div style="flex: 1; min-width: 180px;">
+          <label style="display: block; font-weight: 600; margin-bottom: 0.3rem;">Shehia</label>
+          <input type="text" name="shehia" value="{{ filters.shehia|default:'' }}" style="width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 6px;" />
+        </div>
+        <div style="flex: 1; min-width: 180px;">
+          <label style="display: block; font-weight: 600; margin-bottom: 0.3rem;">Bin</label>
+          <input type="text" name="bin" value="{{ filters.bin|default:'' }}" style="width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 6px;" />
+        </div>
+        <div style="flex: 1; min-width: 180px;">
+          <label style="display: block; font-weight: 600; margin-bottom: 0.3rem;">Priority</label>
+          <select name="priority" style="width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 6px;">
+            <option value="" {% if not filters.priority %}selected{% endif %}>All</option>
+            <option value="High" {% if filters.priority == 'High' %}selected{% endif %}>High</option>
+            <option value="Medium" {% if filters.priority == 'Medium' %}selected{% endif %}>Medium</option>
+            <option value="Low" {% if filters.priority == 'Low' %}selected{% endif %}>Low</option>
+          </select>
+        </div>
+        <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}" />
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="submit" class="button" style="padding: 0.75rem 1.25rem; border-radius: 8px; background: #2563eb; color: white; border: none;">Apply</button>
+          <a href="{% url 'admin-optimization' %}" class="button" style="padding: 0.75rem 1.25rem; border-radius: 8px; background: #f3f4f6; color: #111827; text-decoration: none;">Clear</a>
+        </div>
+      </form>
+
+      {% if schedule %}
+        <div class="module" style="padding: 1rem 1rem 0; overflow-x: auto;">
+          <table class="admin-table" style="width: 100%; border-collapse: collapse; min-width: 1200px;">
+            <thead>
+              <tr>
+                <th style="text-align: left; padding: 0.85rem; border-bottom: 1px solid #e5e7eb;">Shehia</th>
+                <th style="text-align: left; padding: 0.85rem; border-bottom: 1px solid #e5e7eb;">Bin</th>
+                <th style="text-align: left; padding: 0.85rem; border-bottom: 1px solid #e5e7eb;">Current Report Level</th>
+                {% if selected_all %}
+                  {% for b in day_buttons|slice:"1:" %}
+                    <th style="text-align: left; padding: 0.85rem; border-bottom: 1px solid #e5e7eb;">{{ b.label }}</th>
+                  {% endfor %}
+                {% else %}
+                  <th style="text-align: left; padding: 0.85rem; border-bottom: 1px solid #e5e7eb;">Selected Day Forecast</th>
+                  <th style="text-align: left; padding: 0.85rem; border-bottom: 1px solid #e5e7eb;">Priority</th>
+                {% endif %}
+                <th style="text-align: left; padding: 0.85rem; border-bottom: 1px solid #e5e7eb;">Recommended Collection</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in schedule %}
+                <tr>
+                  <td style="padding: 0.85rem; border-bottom: 1px solid #f3f4f6;">{{ item.shehia }}</td>
+                  <td style="padding: 0.85rem; border-bottom: 1px solid #f3f4f6;">{{ item.bin }}</td>
+                  <td style="padding: 0.85rem; border-bottom: 1px solid #f3f4f6;">{{ item.current_report_level }}</td>
+                  {% if selected_all %}
+                    {% for f in item.daily_forecast %}
+                      <td style="padding: 0.85rem; border-bottom: 1px solid #f3f4f6;">{{ f.prediction|default:'-' }}</td>
+                    {% endfor %}
+                  {% else %}
+                    <td style="padding: 0.85rem; border-bottom: 1px solid #f3f4f6;">{{ item.selected_day_forecast.prediction|default:'-' }}</td>
+                    <td style="padding: 0.85rem; border-bottom: 1px solid #f3f4f6;">{{ item.selected_day_priority }}</td>
+                  {% endif %}
+                  <td style="padding: 0.85rem; border-bottom: 1px solid #f3f4f6;">{{ item.recommended_collection }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="module">
+          <p>No optimization schedule available yet. Please ensure there are community waste reports in the system.</p>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+{% endblock %}

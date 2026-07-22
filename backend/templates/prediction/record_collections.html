@@ -1,0 +1,18 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+  <div class="module">
+    <h1>Record Collections</h1>
+    <p>All bins have been recorded as successfully collected.</p>
+
+    <div style="margin-top: 1.5rem; padding: 1.25rem; border-radius: 0.9rem; background: #eff6ff; border: 1px solid #bfdbfe;">
+      <p style="margin: 0; color: #1d4ed8; font-weight: 700;">{{ record_count }} collection records created.</p>
+    </div>
+
+    <div style="margin-top: 1.5rem;">
+      <a href="{% url 'admin-optimization' %}" class="button" style="background: #2563eb; color: white; padding: 0.75rem 1.25rem; border-radius: 0.5rem; text-decoration: none; display: inline-block;">Back to Optimization</a>
+      <a href="{% url 'admin-predicted-data' %}" class="button" style="background: #047857; color: white; padding: 0.75rem 1.25rem; border-radius: 0.5rem; text-decoration: none; display: inline-block; margin-left: 0.75rem;">View Saved Predictions</a>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+  #result_list th {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: 1px solid #e5e7eb !important;
+    border-bottom: 2px solid #16a34a !important;
+    font-weight: 700 !important;
+    padding: 1rem !important;
+  }
+
+  #result_list td {
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid #e5e7eb;
+    padding: 0.85rem !important;
+  }
+
+  #result_list tr:nth-child(even) td {
+    background: #f9fafb;
+  }
+
+  #result_list tr:hover td {
+    background: #f0fdf4;
+  }
+
+  .searchbar input[name=q] {
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid #9ca3af;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+  }
+
+  .searchbar .search-submit {
+    background: #16a34a;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .searchbar .search-submit:hover {
+    background: #15803d;
+  }
+
+  .paginator {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+  }
+
+  .paginator a {
+    color: #16a34a;
+    text-decoration: none;
+    margin: 0 0.25rem;
+  }
+
+  .paginator a:hover {
+    text-decoration: underline;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  {{ block.super }}
+{% endblock %}

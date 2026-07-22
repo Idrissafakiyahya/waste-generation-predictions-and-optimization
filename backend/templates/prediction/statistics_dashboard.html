@@ -1,0 +1,285 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Statistics & Analytics - {{ site_title }}{% endblock %}
+
+{% block extrahead %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-card h3 {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .stat-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #16a34a;
+  }
+
+  .chart-container {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .chart-container h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #111827;
+    font-weight: 700;
+  }
+
+  .chart-wrapper {
+    position: relative;
+    height: 400px;
+    margin-bottom: 1rem;
+  }
+
+  .charts-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 2rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <div style="margin-bottom: 2rem;">
+    <h1 style="margin: 0 0 1rem; color: #111827;">Waste Management Statistics & Analytics</h1>
+    <p style="margin: 0; color: #6b7280;">Real-time insights into waste reports, predictions, and collection optimization.</p>
+  </div>
+
+  <!-- Summary Statistics -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Total Reports</h3>
+      <div class="value">{{ total_reports }}</div>
+    </div>
+    <div class="stat-card">
+      <h3>Full Bins</h3>
+      <div class="value" style="color: #dc2626;">{{ total_full }}</div>
+    </div>
+    <div class="stat-card">
+      <h3>High Level Bins</h3>
+      <div class="value" style="color: #f59e0b;">{{ total_high }}</div>
+    </div>
+    <div class="stat-card">
+      <h3>Total Shehias</h3>
+      <div class="value">{{ total_shehias }}</div>
+    </div>
+    <div class="stat-card">
+      <h3>Total Bins</h3>
+      <div class="value">{{ total_bins }}</div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="charts-row">
+    <!-- Waste Level Distribution -->
+    <div class="chart-container">
+      <h3>Waste Level Distribution</h3>
+      <div class="chart-wrapper">
+        <canvas id="wasteLevelChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Optimization Priority Distribution -->
+    <div class="chart-container">
+      <h3>Optimization Priority Distribution</h3>
+      <div style="padding: 2rem; text-align: center;">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+          <div style="background: #f0fdf4; border-radius: 0.5rem; padding: 1rem;">
+            <p style="margin: 0 0 0.5rem; color: #15803d; font-weight: 600;">High Priority</p>
+            <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #16a34a;">{{ optimization_summary.high }}</p>
+          </div>
+          <div style="background: #fef3c7; border-radius: 0.5rem; padding: 1rem;">
+            <p style="margin: 0 0 0.5rem; color: #92400e; font-weight: 600;">Medium Priority</p>
+            <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #f59e0b;">{{ optimization_summary.medium }}</p>
+          </div>
+          <div style="background: #ecfdf5; border-radius: 0.5rem; padding: 1rem;">
+            <p style="margin: 0 0 0.5rem; color: #065f46; font-weight: 600;">Low Priority</p>
+            <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #16a34a;">{{ optimization_summary.low }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="charts-row">
+    <!-- Reports by Shehia -->
+    <div class="chart-container">
+      <h3>Reports by Shehia (Top 10)</h3>
+      <div class="chart-wrapper">
+        <canvas id="shehiaChart"></canvas>
+      </div>
+    </div>
+
+    <!-- High/Full Reports by Shehia -->
+    <div class="chart-container">
+      <h3>High/Full Reports by Shehia (Top 10)</h3>
+      <div class="chart-wrapper">
+        <canvas id="highFullChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reports by Bin -->
+  <div class="chart-container">
+    <h3>Reports by Bin (Top 10)</h3>
+    <div class="chart-wrapper">
+      <canvas id="binChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+  const chartColors = {
+    primary: '#16a34a',
+    success: '#15803d',
+    warning: '#f59e0b',
+    error: '#dc2626',
+    info: '#3b82f6',
+  };
+
+  // Waste Level Chart (Pie)
+  const wasteLevelCtx = document.getElementById('wasteLevelChart').getContext('2d');
+  new Chart(wasteLevelCtx, {
+    type: 'doughnut',
+    data: {
+      labels: {{ waste_level_chart.labels|safe }},
+      datasets: [{
+        data: {{ waste_level_chart.data|safe }},
+        backgroundColor: ['#15803d', '#f59e0b', '#dc2626', '#3b82f6', '#8b5cf6'],
+        borderColor: '#ffffff',
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+        },
+      },
+    },
+  });
+
+  // Shehia Chart (Bar)
+  const shehiaCtx = document.getElementById('shehiaChart').getContext('2d');
+  new Chart(shehiaCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ shehia_chart.labels|safe }},
+      datasets: [{
+        label: 'Number of Reports',
+        data: {{ shehia_chart.data|safe }},
+        backgroundColor: chartColors.primary,
+        borderColor: chartColors.success,
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+
+  // High/Full Chart (Bar)
+  const highFullCtx = document.getElementById('highFullChart').getContext('2d');
+  new Chart(highFullCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ high_full_chart.labels|safe }},
+      datasets: [{
+        label: 'High/Full Reports',
+        data: {{ high_full_chart.data|safe }},
+        backgroundColor: chartColors.warning,
+        borderColor: chartColors.error,
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+
+  // Bin Chart (Horizontal Bar)
+  const binCtx = document.getElementById('binChart').getContext('2d');
+  new Chart(binCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ bin_chart.labels|safe }},
+      datasets: [{
+        label: 'Number of Reports',
+        data: {{ bin_chart.data|safe }},
+        backgroundColor: chartColors.info,
+        borderColor: chartColors.primary,
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+</script>
+{% endblock %}

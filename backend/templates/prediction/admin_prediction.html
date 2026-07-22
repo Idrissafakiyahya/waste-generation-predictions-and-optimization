@@ -1,0 +1,167 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+  <style>
+    .prediction-actions {
+      margin-top: 1.5em;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.85rem;
+      align-items: center;
+    }
+    .prediction-actions button {
+      padding: 0.8rem 1.4rem;
+      border-radius: 0.45rem;
+      border: 1px solid #10b981;
+      background: #10b981;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .prediction-actions button:last-of-type {
+      background: #047857;
+      border-color: #047857;
+    }
+    .prediction-actions button:hover {
+      background: #0f766e;
+      transform: translateY(-1px);
+    }
+    .prediction-actions .help-text {
+      font-size: 0.95rem;
+      color: #334155;
+      line-height: 1.6;
+      padding: 0.8rem 1rem;
+      border-radius: 0.45rem;
+      border: 1px solid #d1fae5;
+      background: #f0fdf4;
+    }
+    .prediction-summary {
+      display: grid;
+      gap: 1.25rem;
+      margin-top: 1.75rem;
+    }
+    .prediction-summary .result-card,
+    .prediction-summary .weekly-card,
+    .prediction-summary .error-card {
+      border: 1px solid #d1fae5;
+      border-radius: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: #ffffff;
+      box-shadow: 0 10px 22px rgba(16, 185, 129, 0.08);
+    }
+    .prediction-summary h2 {
+      margin-top: 0;
+      color: #065f46;
+    }
+    .admin-table th,
+    .admin-table td {
+      padding: 0.9rem 0.85rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .admin-table th {
+      text-align: left;
+      background: #f0fdf4;
+      color: #065f46;
+    }
+  </style>
+  <div class="module">
+    <h1>Waste Prediction</h1>
+    <p>Enter the raw fields and get a prediction from the deployed model.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <table>
+        {{ form.as_table }}
+      </table>
+      <div id="prediction-spinner" style="display:none;margin-top:0.8rem;">
+        <div style="display:flex;align-items:center;gap:0.6rem;">
+          <div class="spinner" style="width:20px;height:20px;border:3px solid #c7f9e7;border-top-color:#059669;border-radius:50%;animation:spin 1s linear infinite;"></div>
+          <div style="font-weight:600;color:#065f46;">Searching for prediction…</div>
+        </div>
+      </div>
+      <div class="prediction-actions">
+        <button type="submit" name="action" value="predict" class="default">Predict</button>
+        <button type="submit" name="action" value="weekly_predict" class="default">Predict 3-Day from Community Data</button>
+        <button type="submit" name="action" value="save_predictions" class="default">Save 3-Day Predictions</button>
+        <div class="help-text">
+          Use the 3-day button to predict Tomorrow, Day After Tomorrow, and Third Day for each bin from the latest reports. Use Save to persist the latest predicted batch.
+        </div>
+      </div>
+    </form>
+
+    <script>
+      (function(){
+        const form = document.querySelector('form');
+        const spinner = document.getElementById('prediction-spinner');
+        if(!form || !spinner) return;
+        const buttons = form.querySelectorAll('button[type=submit]');
+        form.addEventListener('submit', function(e){
+          spinner.style.display = 'block';
+          buttons.forEach(b=>{ b.disabled = true; b.style.opacity = 0.7; });
+        });
+        const style = document.createElement('style');
+        style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+        document.head.appendChild(style);
+      })();
+    </script>
+
+    <div class="prediction-summary">
+      {% if result %}
+        <div class="result-card">
+          <h2>Prediction Result</h2>
+          <p><strong>Prediction:</strong> {{ result.prediction }}</p>
+          <p><strong>Probabilities:</strong></p>
+          <ul>
+            {% for key, value in result.probabilities.items %}
+              <li>{{ key }}: {{ value }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% if save_message %}
+          <div class="weekly-card success-message" style="border-color: #10b981; background: #ecfdf5; border-left: 5px solid #10b981;">
+            <h2 style="color: #065f46; margin-top: 0;">✓ Success!</h2>
+          <p>{{ save_message }}</p>
+          <p><a href="{% url 'admin-predicted-data' %}" style="display:inline-block;margin-top:0.75rem;padding:0.6rem 1rem;border-radius:0.45rem;background:#16a34a;color:#ffffff;text-decoration:none;font-weight:600;">View Saved Predictions</a></p>
+        </div>
+      {% endif %}
+      {% if weekly_result %}
+        <div class="weekly-card">
+          <h2>3-Day Community Prediction</h2>
+          <p>Predictions for each bin based on the latest available community reports, for the next three days.</p>
+          <table class="admin-table" style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+            <thead>
+              <tr>
+                <th>Shehia</th>
+                <th>Bin</th>
+                <th>{{ weekly_result.0.daily_forecast.0.formatted_date }}</th>
+                <th>{{ weekly_result.0.daily_forecast.1.formatted_date }}</th>
+                <th>{{ weekly_result.0.daily_forecast.2.formatted_date }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in weekly_result %}
+                <tr>
+                  <td>{{ item.shehia }}</td>
+                  <td>{{ item.bin }}</td>
+                  <td>{{ item.daily_forecast.0.prediction }}</td>
+                  <td>{{ item.daily_forecast.1.prediction }}</td>
+                  <td>{{ item.daily_forecast.2.prediction }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+
+      {% if error %}
+        <div class="error-card">
+          <h2>Error</h2>
+          <p>{{ error }}</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

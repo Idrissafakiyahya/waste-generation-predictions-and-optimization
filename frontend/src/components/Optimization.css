@@ -1,0 +1,126 @@
+.optimization-page {
+  width: 100%;
+  padding: 2rem 2rem 4rem;
+}
+
+.optimization-hero {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.optimization-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  color: #064e3b;
+}
+
+.optimization-header p {
+  max-width: 720px;
+  font-size: 1.1rem;
+  color: #334155;
+  line-height: 1.75;
+}
+
+.optimization-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.summary-card {
+  padding: 1.5rem;
+  border-radius: 1rem;
+  color: white;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+}
+
+.high-card {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
+.medium-card {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+}
+
+.low-card {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.summary-card h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+}
+
+.summary-card p {
+  font-size: 2.4rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.optimization-content {
+  max-width: 1200px;
+}
+
+.optimization-panel {
+  background: white;
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.panel-header h2 {
+  margin: 0;
+  color: #0f766e;
+}
+
+.panel-loading,
+.panel-error,
+.panel-empty {
+  padding: 1.5rem;
+  border-radius: 0.85rem;
+  background: #f8fafc;
+  color: #334155;
+}
+
+.optimization-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.optimization-table th,
+.optimization-table td {
+  padding: 1rem 0.9rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.optimization-table th {
+  background: #f0fdf4;
+  color: #065f46;
+}
+
+.optimization-table tr:hover {
+  background: #f9fafb;
+}
+
+@media (max-width: 900px) {
+  .optimization-summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

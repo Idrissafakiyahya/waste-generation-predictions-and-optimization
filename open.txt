@@ -1,0 +1,8 @@
+cd "c:\Users\Idrees\Desktop\waste system\backend"
+python manage.py runserver
+
+
+
+
+cd "c:\Users\Idrees\Desktop\waste system\frontend"
+npm run dev

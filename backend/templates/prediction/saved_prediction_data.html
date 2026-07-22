@@ -1,0 +1,141 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+  <style>
+    .saved-batches {
+      display: grid;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    .saved-batch-card,
+    .saved-batch-detail {
+      background: #ffffff;
+      border: 1px solid #d1fae5;
+      border-radius: 0.9rem;
+      padding: 1.25rem;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+    .saved-batch-card h2,
+    .saved-batch-detail h2 {
+      margin-top: 0;
+      color: #064e3b;
+    }
+    .batch-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .batch-list li {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0.9rem 0;
+    }
+    .batch-list li:last-child {
+      border-bottom: none;
+    }
+    .batch-link {
+      color: #115e59;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .batch-link:hover {
+      color: #0f766e;
+    }
+    .batch-meta {
+      color: #475569;
+      font-size: 0.92rem;
+      margin-top: 0.35rem;
+    }
+    .admin-table th,
+    .admin-table td {
+      padding: 0.8rem 0.85rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .admin-table th {
+      background: #f0fdf4;
+      color: #065f46;
+      text-align: left;
+    }
+    .admin-table tbody tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+    .admin-table tbody tr:hover td {
+      background: #ecfdf5;
+    }
+  </style>
+
+  <div class="module">
+    <h1>Saved Prediction Data</h1>
+    <p>Review previously saved 3-day community prediction batches and inspect individual prediction rows.</p>
+
+    {% if messages %}
+      <div style="margin-top:10px;">
+        {% for message in messages %}
+          <div class="messagelist {{ message.tags }}" style="padding:10px;border-radius:6px;margin-bottom:8px;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if not batches %}
+      <div class="saved-batch-card">
+        <h2>No saved prediction batches</h2>
+        <p>Use the prediction page to generate and save a 3-day forecast batch.</p>
+      </div>
+    {% else %}
+      <div class="saved-batches" style="display: grid; gap: 1rem;">
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <form method="get" id="batch-select-form" style="flex:1;display:flex;gap:0.5rem;align-items:center;">
+            <label for="batch" style="font-weight:600;">Select batch:</label>
+            <select name="batch" id="batch" onchange="document.getElementById('batch-select-form').submit();" style="flex:1;padding:8px;border-radius:6px;border:1px solid #E2E8F0;">
+              {% for batch in batches %}
+                <option value="{{ batch.id }}" {% if selected_batch and batch.id == selected_batch.id %}selected{% endif %}>{{ batch.created_at|date:"M d, Y H:i" }} — {{ batch.items.count }} items</option>
+              {% endfor %}
+            </select>
+          </form>
+
+          <form method="post" style="margin:0;">
+            {% csrf_token %}
+            <input type="hidden" name="batch_id" value="{% if selected_batch %}{{ selected_batch.id }}{% endif %}">
+            <button type="submit" name="action" value="delete_batch" class="button" style="background:#ef4444;border-color:#ef4444;">Delete Batch</button>
+          </form>
+        </div>
+
+        <div class="saved-batch-detail">
+          {% if selected_batch %}
+            <h2>Batch details</h2>
+            <p><strong>Batch name:</strong> {{ selected_batch.name }}</p>
+            <p><strong>Created at:</strong> {{ selected_batch.created_at|date:"M d, Y H:i" }}</p>
+            <table class="admin-table" style="width:100%; border-collapse: collapse; margin-top: 1rem;">
+              <thead>
+                <tr>
+                  <th>Shehia</th>
+                  <th>Bin</th>
+                  <th>Day</th>
+                  <th>Date</th>
+                  <th>Prediction</th>
+                  <th>Probabilities</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in selected_batch.items.all %}
+                  <tr>
+                    <td>{{ item.shehia }}</td>
+                    <td>{{ item.bin }}</td>
+                    <td>{{ item.day_label }}</td>
+                    <td>{{ item.formatted_date }}</td>
+                    <td>{{ item.prediction }}</td>
+                    <td><pre style="margin:0; white-space:pre-wrap;">{{ item.probabilities }}</pre></td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <h2>Select a batch to view details</h2>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
