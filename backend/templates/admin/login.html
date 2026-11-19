@@ -274,6 +274,22 @@
             width: 40px;
         }
     }
+
+    .login-credentials {
+        background: #EEF7EF;
+        border: 1px solid #C8E6C9;
+        border-radius: 6px;
+        color: #1B5E20;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding: 9px 12px;
+        font-size: 0.82em;
+    }
+
+    .login-credentials strong {
+        margin-bottom: 2px;
+    }
 </style>
 {% endblock %}
 
@@ -329,6 +345,12 @@
                 {% endif %}
             </div>
 
+            <div class="login-credentials">
+                <strong>Admin login details</strong>
+                <span>Username: <b>admin</b></span>
+                <span>Password: <b>Admin123!</b></span>
+            </div>
+
             {% url 'admin_password_reset' as password_reset_url %}
             {% if password_reset_url %}
                 <div class="form-row">
@@ -342,4 +364,18 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var username = document.getElementById("id_username");
+        var password = document.getElementById("id_password");
+
+        if (username) {
+            username.setAttribute("placeholder", "Enter username: admin");
+        }
+        if (password) {
+            password.setAttribute("placeholder", "Enter password: Admin123!");
+        }
+    });
+</script>
 {% endblock %}
