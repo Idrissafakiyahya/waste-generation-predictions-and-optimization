@@ -186,6 +186,254 @@ Potential areas for further development include:
 - Incorporating real-time IoT-based waste monitoring.
 - Expanding analytical capabilities for long-term waste generation trends.
 
+
+
+## 🚀 Installation & Setup
+
+Follow these instructions to download, install, and run the project on your local machine.
+
+### 1. Prerequisites
+
+Before installing the project, ensure that the following tools are installed:
+
+| Software | Recommended Version | Purpose |
+|---|---|---|
+| Python | 3.11 | Backend development and Machine Learning |
+| Node.js | LTS | Frontend development |
+| npm | Included with Node.js | Frontend package management |
+| Git | Latest | Repository cloning |
+
+Verify your installations:
+
+```bash
+python --version
+node --version
+npm --version
+git --version
+```
+
+### 2. Clone the Repository
+
+Open your terminal or PowerShell and navigate to the directory where you want to store the project.
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Idrissafakiyahya/waste-generation-predictions-and-optimization.git
+```
+
+Navigate into the project directory:
+
+```bash
+cd waste-generation-predictions-and-optimization
+```
+
+### 3. Backend Installation (Django)
+
+The backend handles data management, API requests, machine learning integration, prediction storage, and collection optimization.
+
+**Step 1: Navigate to the backend directory**
+
+```bash
+cd backend
+```
+
+**Step 2: Create a Python virtual environment**
+
+```bash
+python -m venv .venv
+```
+
+**Step 3: Activate the virtual environment**
+
+For Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+If PowerShell blocks script execution, run:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+**Step 4: Upgrade pip**
+
+```bash
+python -m pip install --upgrade pip
+```
+
+**Step 5: Install backend dependencies**
+
+```bash
+pip install -r requirements.txt
+```
+
+If the project does not contain a `requirements.txt` file, install the required packages according to the project's dependencies.
+
+**Step 6: Apply database migrations**
+
+```bash
+python manage.py migrate
+```
+
+The project uses SQLite for local database storage.
+
+**Step 7: Create an administrator account**
+
+```bash
+python manage.py createsuperuser
+```
+
+Follow the prompts to create your administrator username, email, and password.
+
+**Step 8: Start the Django development server**
+
+```bash
+python manage.py runserver
+```
+
+The backend should now be accessible at:
+
+- API / Backend: http://127.0.0.1:8000
+- Django Admin: http://127.0.0.1:8000/admin
+
+Keep this terminal running while using the application.
+
+### 4. Frontend Installation (React + Vite)
+
+Open a second terminal window.
+
+**Step 1: Navigate to the frontend directory**
+
+From the project root:
+
+```bash
+cd frontend
+```
+
+**Step 2: Install frontend dependencies**
+
+```bash
+npm install
+```
+
+**Step 3: Start the development server**
+
+```bash
+npm run dev
+```
+
+The frontend should now be accessible at:
+
+http://localhost:5173
+
+If port 5173 is already occupied, Vite may automatically select another available port. Use the URL displayed in your terminal.
+
+Keep the frontend terminal running while using the application.
+
+### 5. Access the Application
+
+Once both servers are running, open your browser and access the following addresses:
+
+| Component | Local URL |
+|---|---|
+| Frontend Application | http://localhost:5173 |
+| Django Backend | http://127.0.0.1:8000 |
+| Admin Dashboard | http://127.0.0.1:8000/admin |
+
+You can now interact with the application, submit waste bin reports, generate predictions, manage prediction batches, and explore the available system features.
+
+### 6. Running the Project Again
+
+Whenever you want to run the project again, you do not need to reinstall the dependencies.
+
+Open two terminal windows.
+
+**Terminal 1 – Backend**
+
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
+python manage.py runserver
+```
+
+**Terminal 2 – Frontend**
+
+```bash
+cd frontend
+npm run dev
+```
+
+### 7. Troubleshooting
+
+**Issue: Django module not found**
+
+Install the backend dependencies inside the activated virtual environment:
+
+```bash
+pip install -r requirements.txt
+```
+
+**Issue: Database tables are missing**
+
+Run:
+
+```bash
+python manage.py migrate
+```
+
+**Issue: Frontend cannot communicate with the backend**
+
+- Ensure that the Django backend is running.
+- Verify that the frontend API configuration points to the correct backend address.
+- Check the browser console for API errors.
+
+**Issue: Port 8000 is already in use**
+
+Start Django on another port:
+
+```bash
+python manage.py runserver 8001
+```
+
+Ensure that the frontend API configuration uses the updated backend address.
+
+**Issue: Frontend dependencies are missing**
+
+Navigate to the frontend directory and run:
+
+```bash
+npm install
+```
+
+### 8. Stopping the Application
+
+To stop either development server, press:
+
+```text
+CTRL + C
+```
+
+### ⚠️ Important Notes
+
+- Do not upload your `.venv` or `node_modules` directories to GitHub.
+- Keep environment variables and secret keys out of public repositories.
+- Use development credentials only for local testing.
+- Never expose administrator passwords in the README.
+- For production deployment, configure appropriate security settings, environment variables, and database credentials.
+
+---
+
+**Installation Complete! 🎉**
+
+You have successfully set up the Waste Generation Prediction & Optimization System for local development.
+
+
+  
+
 ## 👨‍💻 Author
 
 **Idrissa Faki Yahya**
